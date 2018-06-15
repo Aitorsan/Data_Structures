@@ -1,0 +1,5 @@
+Data_structures_asf.vcxproj
+Data_structures_asf.vcxproj.filter
+Data_structures_asf.vcxproj.user
+.DS_Store
+.gitattributes
