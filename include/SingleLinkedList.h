@@ -117,9 +117,26 @@ namespace asf {
 
 	}
 
+	//Move constructor
 	template<typename T>
-	inline SingleLinkedList<T>::SingleLinkedList(SingleLinkedList<T>&&)
+	inline SingleLinkedList<T>::SingleLinkedList(SingleLinkedList<T>&& rhs)
 	{
+		//We point to the list we are moving
+		this->m_head = rhs->m_head;
+		this->m_prev = rhs->m_prev;
+		this->m_curr = rhs->m_curr;
+		this->m_rear = rhs->m_rear;
+		this->m_size = rhs->m_size;
+		this->curr_position = rhs->curr_position;
+
+		//finally we reset the variables to cero from rhs and make the pointers nullptr
+		rhs->m_head = nullptr;
+		rhs->m_prev = nullptr;
+		rhs->m_curr = nullptr;
+		rhs->m_rear = nullptr;
+		rhs->m_size = 0;
+		rhs->curr_position = 0;
+
 	}
 
 
