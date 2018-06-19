@@ -17,88 +17,76 @@ namespace asf {
 
 	//merge function
 	template<typename T>
-	void merge(T*L, T*array, T* R, int size, int l_size, int r_size, fptr_predicate<T> func) {
+	void merge( T*list, int beg, int middle, int end, fptr_predicate<T> func) {
 
-		int l_i{}, r_i{}, m_i{};
+		int l_it = beg;
+		int r_it = middle;
 
-		// if we pass a valid predicate to compare we use it else we use the less < operator to sort
-		if (func != nullptr) {
+		T* temp = new T[end - beg + 1];
 
-			while (l_i < l_size && r_i < r_size) {
+		int cont{};
+		
+		while (l_it < middle || r_it <= end) {
 
-				if (func(L[l_i], R[r_i])) {
-					array[m_i] = L[l_i];
-					++l_i;
+			// if we pass a valid predicate to compare we use it, else we use the less < operator to sort
+			if (func != nullptr) {
 
+				if (r_it > end || l_it < middle &&  func(list[l_it], list[r_it])) {
+
+					temp[cont] = list[l_it];
+					++l_it;
+				}
+				else if (l_it > middle-1 || r_it <= end && func(list[r_it], list[l_it])) {
+					temp[cont] = list[r_it];
+					++r_it;
+				}//It means they are equal or the indexes are the same we just take the one still in the valid range
+				else if ( l_it < middle){
+					temp[cont] = list[l_it];
+					++l_it;
 				}
 				else {
-					array[m_i] = R[r_i];
-					++r_i;
+					temp[cont] = list[r_it];
+					++r_it;
 				}
-				++m_i;
 			}
-		}
-		else {//default way to sort
+			else {//default way to sort
 
-			if (L[l_i] < R[r_i]) {
-				array[m_i] = L[l_i];
-				++l_i;
+				if (r_it > end || l_it < middle &&  list[l_it]< list[r_it]) {
+
+					temp[cont] = list[l_it];
+					++l_it;
+
+				}
+				else if (l_it > middle -1|| r_it <= end && list[r_it]<= list[l_it]) {
+					temp[cont] = list[r_it];
+					++r_it;
+				}
 			}
-			else {
-				array[m_i] = R[r_i];
-				++r_i;
-			}
-			++m_i;
-		}
 
-		while (l_i < l_size) {
-			array[m_i] = L[l_i];
-			++l_i;
-			++m_i;
-		}
-		while (r_i < r_size) {
-			array[m_i] = R[r_i];
-			++r_i;
-			++m_i;
-		}
+			++cont;
 
+		}
+		
+		// we copy the temp order list in the positions between beginning and end, we are currently considering,  of the original list
+		for (int i = beg, j = 0; i <= end; ++j , ++i) {
+			list[i] = temp[j];
+		}
+		delete[] temp;
+	
 	}
 
 	// merge sort
 	template <typename T>
-	void merge_sort(T* array, int size, fptr_predicate<T> func) {
+	void merge_sort(T* list, int beg,int end, fptr_predicate<T> func) {
 
-		if (size > 1) {
+		if (beg< end) {
 
-			int l_size = size / 2;
-			int r_size = size - l_size;
+			int middle = (beg + end) / 2 + 1;
+			
+			merge_sort(list, beg,middle-1, func);
+			merge_sort(list, middle,end, func);
 
-			T* Left = nullptr;
-			T* Right = nullptr;
-			try {
-
-				Left = new T[l_size];
-				Right = new T[r_size];
-
-			}
-			catch (std::bad_alloc& e) {
-				delete[] Left;
-				delete[] Right;
-				Left = nullptr;
-				Right = nullptr;
-				std::cout << e.what() << std::endl;
-			}
-			for (int i = 0; i < l_size; ++i) {
-				Left[i] = array[i];
-			}
-			for (int i = l_size; i < size; ++i) {
-				Right[i - l_size] = array[i];
-			}
-			merge_sort(Left, l_size, func);
-			merge_sort(Right, r_size, func);
-			merge(Left, array, Right, size, l_size, r_size, func);
-			delete[]Left;
-			delete[]Right;
+			merge( list, beg, middle,end, func);
 		}
 
 	}

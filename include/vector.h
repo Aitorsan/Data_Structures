@@ -10,6 +10,7 @@
 #include<initializer_list>
 #include <stdexcept>
 #include "algorithms.h"
+#include <ostream>
 #define DEFAULT_CAPACITY 4
 #define INC_CAPACITY_FACTOR 2
 namespace asf {
@@ -39,7 +40,8 @@ namespace asf {
 		void push_back(T element);
 
 		void sort_custom(bool(*ptr)(const T& a, const T& b));
-		void sort();
+		void sort_descendent();
+		void sort_ascendent();
 
 		//overloaded operators	
 		T&  operator [](int index);
@@ -58,7 +60,8 @@ namespace asf {
 		vector<T>& operator= (vector<T>&& rhs);
 
 		//friend overload ostream object
-		friend std::ostream& operator<<(std::ostream& out, const vector<T>& rhs);
+		template<typename E>
+		friend std::ostream& operator<<(std::ostream& out, const vector<E>& rhs);
 	};
 	//******************************
 	// Implementation of the class
@@ -126,16 +129,24 @@ namespace asf {
 	template<typename T>
 	inline void vector<T>::sort_custom(bool(*ptr)(const T &a, const T &b))
 	{
-		  merge_sort<T>(m_container, m_size, ptr);
-		
+		  merge_sort<T>(m_container, 0,m_size-1, ptr);
 	}
 	// Sort the vector in ascending order by default. 
 	// Should be use with objects that has overloaded 
 	// the comparation overloaded operators
 	template<typename T>
-	inline void vector<T>::sort() {
-		merge_sort<T>(m_container, m_size, [](const T&a, const T&b) {return a < b; });
+	inline void vector<T>::sort_descendent() {
+		merge_sort<T>(m_container,0, m_size-1, [](const T&a, const T&b) {return a > b; });
 	}
+
+	// Sort the vector in ascending order by default. 
+	// Should be use with objects that has overloaded 
+	// the comparation overloaded operators
+	template<typename T>
+	inline void vector<T>::sort_ascendent() {
+		merge_sort<T>(m_container, 0, m_size-1,nullptr);
+	}
+
 
 	//Delete the content within the vector
 	template <typename T>
@@ -320,8 +331,8 @@ namespace asf {
 	}
 
 	// << overload operator for print to the console
-	template <typename T>
-	inline std::ostream& operator<<(std::ostream& out, const vector<T>& rhs) {
+	template <typename E>
+	 inline std::ostream& operator<<(std::ostream& out, const vector<E>& rhs) {
 
 			for (int i = 0; i < rhs.m_size; ++i) {
 				out << "[" << rhs[i] << "]";
