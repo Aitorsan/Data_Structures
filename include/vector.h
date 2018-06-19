@@ -129,14 +129,14 @@ namespace asf {
 	template<typename T>
 	inline void vector<T>::sort_custom(bool(*ptr)(const T &a, const T &b))
 	{
-		  merge_sort<T>(m_container, 0,m_size-1, ptr);
+		 Sorter<T>::merge_sort(m_container, 0,m_size-1, ptr);
 	}
 	// Sort the vector in ascending order by default. 
 	// Should be use with objects that has overloaded 
 	// the comparation overloaded operators
 	template<typename T>
 	inline void vector<T>::sort_descendent() {
-		merge_sort<T>(m_container,0, m_size-1, [](const T&a, const T&b) {return a > b; });
+		Sorter<T>::merge_sort(m_container,0, m_size-1, [](const T&a, const T&b) {return a > b; });
 	}
 
 	// Sort the vector in ascending order by default. 
@@ -144,7 +144,7 @@ namespace asf {
 	// the comparation overloaded operators
 	template<typename T>
 	inline void vector<T>::sort_ascendent() {
-		merge_sort<T>(m_container, 0, m_size-1,nullptr);
+		Sorter<T>::merge_sort(m_container, 0, m_size-1);
 	}
 
 
