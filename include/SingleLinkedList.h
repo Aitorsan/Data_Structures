@@ -1,18 +1,25 @@
 #pragma once
-
+// MSC standards compliance issues
+#ifdef _MSC_VER
+#include "bw_msposix.h"
+#else
+#define _NOEXCEPT noexcept
+#endif
 #include <utility>
 #include "Nodes.h"
-namespace asf {
-	template<typename T>
-	class SingleLinkedList {
 
-		Node<T>*m_head, *m_curr, *m_prev, *m_rear;
-		unsigned int m_size;
-		int curr_position;
+namespace asf
+{
+	template<typename T>
+	class SingleLinkedList
+    {  
+       Node<T>*m_head, *m_curr, *m_prev, *m_rear;
+       unsigned int m_size;
+       unsigned int curr_position;
 	public:
 		SingleLinkedList();
 		SingleLinkedList(const SingleLinkedList<T>&);
-		SingleLinkedList(SingleLinkedList<T>&&);
+		SingleLinkedList(SingleLinkedList<T>&&)_NOEXCEPT;
 		~SingleLinkedList();
 		//checks if the current pointer (m_curr) has reached the end of the list
 		bool end_of_list() { return m_curr == m_rear; }
@@ -29,26 +36,26 @@ namespace asf {
 		// remove the desire element from the list if is in the list
 		void remove(T element);
 		//check if the list is empty
-		bool is_empty() { return m_size == 0; }
+		bool is_empty()const { return m_size == 0; }
 		// reverse the list the first node is the last and the last is the first.
 		void reverse_list();
         //size of the list number of elements
 		int size()const;
-
         //print elements inside the list
-        
         void print_elements();
 		//operator overloading
-		SingleLinkedList<T>& operator= (const SingleLinkedList<T>&);
-		SingleLinkedList<T>& operator= (SingleLinkedList<T>&&);
+		SingleLinkedList<T>& operator= ( SingleLinkedList<T>);
+		//SingleLinkedList<T>& operator= (SingleLinkedList<T>&&);
 		template<typename E>
-		SingleLinkedList<T>& operator = (SingleLinkedList<E>&);
+		SingleLinkedList<T>& operator = (SingleLinkedList<E>);
 
 	private:
 		//private methods to help
         Node<T>* remove(Node<T>* node,  const T& element);
 		Node<T>* get_node(const T& element, Node<T>* next = nullptr)const;
-
+        void reverse_list(Node<T>* node);
+        void swap(SingleLinkedList<T>& other);
+        void reset_state();
 
 	};
 
@@ -57,7 +64,6 @@ namespace asf {
 	/***************************
 	*Constructors
 	***************************/
-
 	template<class T>
 	SingleLinkedList<T>::SingleLinkedList()
 		:m_head(nullptr),
@@ -77,23 +83,26 @@ namespace asf {
 		m_prev{ nullptr },
 		m_rear{ nullptr },
 		m_size{},
-		curr_position{} {
+		curr_position{}
+    {
 
-		if (!list.is_empty()) {
+		if (!list.is_empty())
+        {
 
 			Node<T>* iterator = nullptr;
 			iterator = list.m_head;
-			try {
-
+			try
+            {
 				m_head = new Node<T>(list.m_head->get_data(), nullptr);
 				m_curr = m_head;
 				m_rear = m_head;
 				m_prev = m_head;
 				//int counter = 0;
-				while (iterator->m_next ) {
-					iterator = iterator->m_next;
-					m_rear->m_next = new Node<T>(iterator->m_data, nullptr);
-					m_rear = m_rear->m_next;
+				while (iterator->get_next() )
+                {
+					iterator= iterator->get_next();
+					m_rear->set_next( new Node<T>(iterator->get_data(), nullptr));
+					m_rear = m_rear->get_next();
 				
 					//for debugging and testing
 //                    ++counter;
@@ -102,9 +111,9 @@ namespace asf {
 //                      }
 				}
 				iterator = nullptr;
-
 			}
-			catch (const std::bad_alloc& e) {
+			catch (const std::bad_alloc& e)
+            {
 				//because our nodes know how to clean up themselves
 				// if allocation fails in one of the iterations we delete the head 
 				// and all the allocated nodes will be also deleted
@@ -114,12 +123,18 @@ namespace asf {
 				delete m_head;
 			}
 		}
-
 	}
 
 	template<typename T>
-	inline SingleLinkedList<T>::SingleLinkedList(SingleLinkedList<T>&&)
+    inline SingleLinkedList<T>::SingleLinkedList(SingleLinkedList<T>&& other) _NOEXCEPT
 	{
+        m_head = other.m_head;
+        m_prev = other.m_prev;
+        m_curr = other.m_curr;
+        m_rear = other.m_rear;
+        m_size = other.m_size;
+        curr_position= other.curr_position;
+        other.reset_state();
 	}
 
 
@@ -169,10 +184,12 @@ namespace asf {
 	template<typename T>
 	inline void SingleLinkedList<T>::insert_after(const T & element)
 	{
-		if (m_curr == m_rear) {
+		if (m_curr == m_rear)
+        {
 			insert_at_rear(element);
 		}
-		else {
+		else
+        {
 			m_curr->set_next ( get_node(element, m_curr->get_next()));
 			++m_size;
 		}
@@ -230,19 +247,15 @@ namespace asf {
 	template<typename T>
 	inline void SingleLinkedList<T>::remove(T element)
 	{
-        if(!is_empty()){
-            
-            m_head = remove(m_head,element);
-            
-            
-        }else{
-            std::cout << "The list is empty\n";
+        if(!is_empty())
+        {
+           m_head = remove(m_head,element);
         }
-        
-        
-        
+        else
+        {
+           std::cout << "The list is empty\n";
+        }
 	}
-    
     
     
     /*************************************************************
@@ -251,35 +264,54 @@ namespace asf {
     template<typename T>
     Node<T>* SingleLinkedList<T>::remove(Node<T>* node, const T& element){
         
-        if(node != nullptr){
-            
-            if( node->get_data() == element){
-                
+        if(node != nullptr)
+        {
+            if( node->get_data() == element)
+            {
                 Node<T>* temp = node->get_next();
                 node->set_next(nullptr);
                 delete node;
                 node= nullptr;
                 --m_size;
                 return temp;
-            }else{
-                
-                node->set_next(remove(node->get_next(), element));
-                return node;
             }
-            
+            else
+            {
+               node->set_next(remove(node->get_next(), element));
+               return node;
+            }
         }
-        
-        
         return nullptr;
-        
     }
     
-    
-
 	template<typename T>
 	inline void SingleLinkedList<T>::reverse_list()
-	{
-	}
+    {
+        if(m_head != nullptr)
+        {
+            m_rear = m_head;
+            reverse_list(m_head);
+            m_rear->set_next(nullptr);
+        }
+    }
+    
+    template<typename T>
+    inline void SingleLinkedList<T>::reverse_list(Node<T>* node)
+    {
+         if(node->get_next() == nullptr)
+         {
+            m_curr =  m_head = node;
+         
+         }
+         else
+         {
+             reverse_list(node->get_next());
+             m_curr->set_next(node);
+             m_curr = node;
+         }
+        
+    
+    }
 
 
 	//return the number of elements in the list. The size
@@ -306,7 +338,7 @@ namespace asf {
 	//conversion between two different but compatible types of list like list of floats and ints.
 	template<typename T>
 	template<typename E>
-	inline SingleLinkedList<T>& SingleLinkedList<T>::operator=(SingleLinkedList<E>&rhs)
+	inline SingleLinkedList<T>& SingleLinkedList<T>::operator=(SingleLinkedList<E>rhs)
 	{
 		// TODO: insert return statement here
 	}
@@ -314,11 +346,31 @@ namespace asf {
 
 	//move assignament operator
 	template<typename T>
-	inline SingleLinkedList<T>& SingleLinkedList<T>::operator=(SingleLinkedList<T>&&)
+	inline SingleLinkedList<T>& SingleLinkedList<T>::operator=(SingleLinkedList<T> other)
 	{
-		// TODO: insert return statement here
+        swap(other);
+        return *this;
 	}
+    
+    template<typename T>
+    inline void SingleLinkedList<T>::swap(SingleLinkedList<T>& other)
+    {
+        std::swap(m_head,other.m_head);
+        std::swap(m_curr,other.m_curr);
+        std::swap(m_prev,other.m_prev);
+        std::swap(m_rear,other.m_rear);
+        std::swap(m_size,other.m_size);
+        std::swap(curr_position,other.curr_position);
+        
+    }
 
+    template<typename T>
+    inline void SingleLinkedList<T>::reset_state()
+    {
+        m_head = m_curr = m_prev = m_rear = nullptr;
+        m_size = 0;
+        curr_position = 0;
+    }
 	/*********************
 	 * Private mehtods
 	 *********************/

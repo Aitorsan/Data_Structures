@@ -10,59 +10,48 @@
 
 
 
-class parent{
-    
-public:
-    
-    virtual void method()= 0;
-    virtual void mehthod_two() = 0;
-    
-    
-};
-
-
-
-class child:public parent{
-    
-    
-    public :
-    
-    void method(){
-        std::cout << "child one"<<std::endl;
-    }
-    
-    void method_two(){
-        std::cout << "mehtod two child one" << std::endl;
-        
-    }
-    
-    
-};
-
-
-class subchild:public parent{
-    virtual void method(){
-    std::cout << "is private you cant use it" << std::endl;}
-    virtual void mehthod_two(){
-    std::cout << "method two is private you cant use it" <<std::endl;
-    }
-    public :
-    
-    void nowyes(){
-       mehthod_two();
-        method();
-    }
-    
-    
-};
-
 int main(){
 
+    asf::SingleLinkedList<int> list1;
+    asf::SingleLinkedList<int>list2;
     
-    subchild c;
-    c.nowyes();
-
- 
+    list1.insert(3);
+    list1.insert(2);
+    list1.insert(5);
+    list1.insert(7);
+    std::cout << "\n*********************************\n";
+    std::cout <<  " Copy assignament";
+    std::cout << "\n*********************************\n";
+   std::cout << "\n-------------\nBefore copy assignament\n------------\n";
+    std::cout << "List 1: \n";
+    list1.print_elements();
+    std::cout << "List 2: \n";
+    list2.print_elements();
+    std::cout << "\n-------------\nlist2 = list1;\n------------\n";
+    list2 = list1;
+    std::cout << "\n-------------\nAfter copy assignament\n------------\n";
+    std::cout << "List 1: \n";
+    list1.print_elements();
+    std::cout << "List 2: \n";
+    list2.print_elements();
+    
+    std::cout << "\n*********************************\n";
+    std::cout <<  " move assignament";
+     std::cout << "\n*********************************\n";
+    std::cout << "\n-------------\nlist2 = std::move(list1);\n------------\n";
+    list2 = std::move(list1);
+    
+    std::cout << "\n-------------\nAfter move assignament\n------------\n";
+    std::cout << "List 1: \n";
+    list1.print_elements();
+    std::cout << "List 2: \n";
+    list2.print_elements();
+    std::cout << "\n*********************************\n";
+    std::cout <<  " reverse list2";
+    std::cout << "\n*********************************\n";
+    list2.reverse_list();
+    list2.print_elements();
+    
 	return 0;
 }
 
