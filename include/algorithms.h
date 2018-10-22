@@ -11,95 +11,92 @@
 */
 
 namespace asf {
-	//typedefs
+
 	template<typename T>
-	using fptr_predicate = bool(*)(const T&a, const T&b);
+    struct Sorter {
+		//typedefs
+		using fptr_predicate = bool(*)(const T&a, const T&b);
 
-	//merge function
-	template<typename T>
-	void merge(T*L, T*array, T* R, int size, int l_size, int r_size, fptr_predicate<T> func) {
+    
+		// merge sort
+		static void merge_sort(T* list, int beg, int end, fptr_predicate func = nullptr) {
 
-		int l_i{}, r_i{}, m_i{};
+			if (beg < end) {
 
-		// if we pass a valid predicate to compare we use it else we use the less < operator to sort
-		if (func != nullptr) {
+				int middle = (beg + end) / 2 + 1;
 
-			while (l_i < l_size && r_i < r_size) {
+				merge_sort(list, beg, middle - 1, func);
+				merge_sort(list, middle, end, func);
 
-				if (func(L[l_i], R[r_i])) {
-					array[m_i] = L[l_i];
-					++l_i;
-
-				}
-				else {
-					array[m_i] = R[r_i];
-					++r_i;
-				}
-				++m_i;
+				merge(list, beg, middle, end, func);
 			}
+
 		}
-		else {//default way to sort
+	private:
+		//merge function
+		static void merge(T*list, int beg, int middle, int end, fptr_predicate func=nullptr) {
 
-			if (L[l_i] < R[r_i]) {
-				array[m_i] = L[l_i];
-				++l_i;
-			}
-			else {
-				array[m_i] = R[r_i];
-				++r_i;
-			}
-			++m_i;
-		}
+			int l_it = beg;
+			int r_it = middle;
 
-		while (l_i < l_size) {
-			array[m_i] = L[l_i];
-			++l_i;
-			++m_i;
-		}
-		while (r_i < r_size) {
-			array[m_i] = R[r_i];
-			++r_i;
-			++m_i;
-		}
+			T* temp = nullptr;
 
-	}
-
-	// merge sort
-	template <typename T>
-	void merge_sort(T* array, int size, fptr_predicate<T> func) {
-
-		if (size > 1) {
-
-			int l_size = size / 2;
-			int r_size = size - l_size;
-
-			T* Left = nullptr;
-			T* Right = nullptr;
 			try {
 
-				Left = new T[l_size];
-				Right = new T[r_size];
+				temp = new T[end - beg + 1];
+
+				int cont{};
+
+				while (l_it < middle || r_it <= end) {
+
+					// if we pass a valid predicate to compare we use it, else we use the less < operator to sort
+					if (func != nullptr) {
+
+						if (r_it > end || l_it < middle &&  func(list[l_it], list[r_it])) {
+							temp[cont] = list[l_it];
+							++l_it;
+						}
+						else if (l_it > middle - 1 || r_it <= end && func(list[r_it], list[l_it])) {
+							temp[cont] = list[r_it];
+							++r_it;
+						}//It means they are equal or the indexes are the same we just take the one still in the valid range
+						else if (l_it < middle) {
+							temp[cont] = list[l_it];
+							++l_it;
+						}
+						else {
+							temp[cont] = list[r_it];
+							++r_it;
+						}
+					}
+					else {//default way to sort
+
+						if (r_it > end || l_it < middle &&  list[l_it] < list[r_it]) {
+
+							temp[cont] = list[l_it];
+							++l_it;
+
+						}
+						else if (l_it > middle - 1 || r_it <= end && list[r_it] <= list[l_it]) {
+							temp[cont] = list[r_it];
+							++r_it;
+						}
+					}
+					++cont;
+				}
+				// we copy the temp order list in the positions between beginning and end, we are currently considering,  of the original list
+				for (int i = beg, j = 0; i <= end; ++j, ++i) {
+					list[i] = temp[j];
+				}
 
 			}
-			catch (std::bad_alloc& e) {
-				delete[] Left;
-				delete[] Right;
-				Left = nullptr;
-				Right = nullptr;
-				std::cout << e.what() << std::endl;
+			catch (const std::bad_alloc& e) {
+				std::cout << e.what() << " Fail to allocate, merge sort\n";
+				delete[] temp;
+				temp = nullptr;
 			}
-			for (int i = 0; i < l_size; ++i) {
-				Left[i] = array[i];
-			}
-			for (int i = l_size; i < size; ++i) {
-				Right[i - l_size] = array[i];
-			}
-			merge_sort(Left, l_size, func);
-			merge_sort(Right, r_size, func);
-			merge(Left, array, Right, size, l_size, r_size, func);
-			delete[]Left;
-			delete[]Right;
+			delete[] temp;
 		}
 
-	}
-}
+	};
+}//end asf namespace
