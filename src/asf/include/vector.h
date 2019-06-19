@@ -13,9 +13,9 @@
 #define DEFAULT_CAPACITY 4
 #define INC_CAPACITY_FACTOR 2
 namespace asf
-{
-	template <typename T>
-	class vector
+{ 
+    template <typename T>
+    class vector
     {
 		// that is the number of elements that the array contains, even thoug the capacity is the real size it is forbbiden to write beyond the bounds of the size
 		int m_size;
@@ -32,7 +32,6 @@ namespace asf
 		vector(asf::vector<T>&& rhs);
 		~vector();
 
-		//methods
 		int  size()const { return m_size; };
 		int capacity()const { return m_capacity; }
 		void resize(int new_capacity);
@@ -40,13 +39,12 @@ namespace asf
 		void clean();
 		void push_back(T element);
 		void sort_custom(bool(*ptr)(const T& a, const T& b));
-<<<<<<< HEAD
+
 		void sort();
-=======
+
 		void sort_descendent();
 		void sort_ascendent();
 
->>>>>>> 5a18ed914dd0a44bdb0fa6b5e4a9b402ca9d84fd
 		//overloaded operators	
 		T&  operator [](int index);
 		// pointer cast operator
@@ -141,9 +139,6 @@ namespace asf
 	template<typename T>
 	inline void vector<T>::sort_custom(bool(*ptr)(const T &a, const T &b))
 	{
-<<<<<<< HEAD
-       merge_sort<T>(m_container, m_size, ptr);
-=======
 		 Sorter<T>::merge_sort(m_container, 0,m_size-1, ptr);
 	}
 	// Sort the vector in ascending order by default. 
@@ -152,21 +147,14 @@ namespace asf
 	template<typename T>
 	inline void vector<T>::sort_descendent() {
 		Sorter<T>::merge_sort(m_container,0, m_size-1, [](const T&a, const T&b) {return a > b; });
->>>>>>> 5a18ed914dd0a44bdb0fa6b5e4a9b402ca9d84fd
 	}
 
 	// Sort the vector in ascending order by default. 
 	// Should be use with objects that has overloaded 
 	// the comparation overloaded operators
 	template<typename T>
-<<<<<<< HEAD
-	inline void vector<T>::sort()
-    {
-		merge_sort<T>(m_container, m_size, [](const T&a, const T&b) {return a < b; });
-=======
 	inline void vector<T>::sort_ascendent() {
 		Sorter<T>::merge_sort(m_container, 0, m_size-1);
->>>>>>> 5a18ed914dd0a44bdb0fa6b5e4a9b402ca9d84fd
 	}
 
 
