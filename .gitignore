@@ -5,4 +5,4 @@ Data_structures_asf.vcxproj.user
 .gitattributes
 *.o
 *.patch
-test
+build/test
