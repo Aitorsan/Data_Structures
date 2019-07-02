@@ -60,13 +60,6 @@ namespace asf
 		template<typename E>
 		friend std::ostream& operator<<(std::ostream& out, const vector<E>& rhs);
 	};
-	//******************************
-	// Implementation of the class
-	//******************************
-
-	//******************************
-	// Constructors
-	//******************************
 
 	//No parameter constructor
 	template <typename T>
